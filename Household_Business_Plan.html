@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Household Business Plan — Upspringer &amp; Taken</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --ink:#12141A; --ink-2:#1A1D26; --ink-3:#232733;
+    --paper:#F3F1EC; --paper-2:#E8E4D8;
+    --text:#1B2130; --muted:#6B6F7A; --line:#DCD8CC; --white:#FFFFFF;
+    --up-green:#2FAE66; --up-green-deep:#248F53; --up-glow:rgba(47,174,102,0.45);
+    --tk-brass:#B8823D; --tk-brass-deep:#9C6D2E; --tk-glow:rgba(184,130,61,0.45);
+    --gold:#E8B85C; --rust:#E0574A;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--text);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4{font-family:'Fraunces',serif;font-weight:600;margin:0;color:var(--ink);}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px;}
+  a{color:inherit;}
+
+  header.top{background:var(--ink);padding:26px 0;color:var(--white);}
+  header.top .kicker{font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:#9AA3B0;margin-bottom:8px;}
+  header.top h1{color:var(--white);font-size:30px;}
+  header.top p{color:#B7BCC9;font-size:14.5px;margin-top:8px;max-width:60ch;}
+
+  /* ---------- Combined target tracker ---------- */
+  .target-wrap{background:var(--ink-2);border-radius:14px;padding:26px 28px;margin:-30px auto 34px;position:relative;
+    box-shadow:0 20px 44px -18px rgba(0,0,0,0.4);color:var(--white);}
+  .target-top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:16px;}
+  .target-top h2{color:var(--white);font-size:19px;}
+  .target-input-row{display:flex;align-items:center;gap:8px;font-size:13.5px;color:#B7BCC9;}
+  .target-input-row input{
+    width:120px;padding:7px 10px;border-radius:5px;border:1px solid #3A3F4C;background:#20242E;color:var(--white);font-size:14px;
+  }
+  .target-bar-track{background:#2A2E3A;border-radius:20px;height:22px;overflow:hidden;position:relative;}
+  .target-bar-fill{background:linear-gradient(90deg,var(--gold),var(--up-green));height:100%;border-radius:20px;transition:width .5s ease;}
+  .target-stats{display:flex;justify-content:space-between;margin-top:10px;font-size:13px;color:#9AA3B0;}
+  .target-stats b{color:var(--white);font-family:'Fraunces',serif;font-size:16px;}
+
+  section.biz{padding:36px 0;}
+  .biz-head{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .biz-head .dot{width:12px;height:12px;border-radius:50%;}
+  .biz-head h2{font-size:25px;}
+  .biz-sub{color:var(--muted);font-size:14.5px;margin-bottom:22px;}
+
+  .stream-card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:14px;}
+  .stream-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:4px;}
+  .stream-name{font-weight:700;font-size:15px;}
+  .stream-status{font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:3px 9px;border-radius:20px;}
+  .status-ready{background:rgba(47,174,102,0.14);color:var(--up-green-deep);}
+  .status-needs{background:rgba(224,87,74,0.12);color:var(--rust);}
+  .stream-desc{color:var(--muted);font-size:13px;margin-bottom:12px;}
+  .stream-calc{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;}
+  .stream-calc input{width:100px;padding:8px 10px;border-radius:6px;border:1px solid var(--line);font-size:14px;font-family:'Inter',sans-serif;}
+  .stream-calc .eq{color:var(--muted);}
+  .stream-calc .subtotal{font-family:'Fraunces',serif;font-size:17px;margin-left:auto;}
+
+  .biz-total{
+    display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-radius:10px;margin-top:4px;color:var(--white);
+  }
+  .biz-total .tlabel{font-size:13px;letter-spacing:0.03em;text-transform:uppercase;}
+  .biz-total .tval{font-family:'Fraunces',serif;font-size:24px;}
+
+  /* ---------- Roadmap checklist ---------- */
+  .roadmap{margin-top:26px;}
+  .rm-phase{margin-bottom:18px;}
+  .rm-phase h4{font-size:13px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .rm-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .rm-item:last-child{border-bottom:none;}
+  .rm-item input[type=checkbox]{margin-top:3px;width:16px;height:16px;flex-shrink:0;cursor:pointer;}
+  .rm-item label{font-size:13.5px;line-height:1.5;cursor:pointer;}
+  .rm-item.done label{color:var(--muted);text-decoration:line-through;}
+
+  footer{background:var(--ink);color:#8B92A0;padding:24px 0;margin-top:20px;}
+  footer .wrap{font-size:12.5px;text-align:center;}
+
+  @media (max-width:600px){
+    .stream-calc .subtotal{margin-left:0;width:100%;text-align:right;}
+    .target-wrap{margin:-24px 14px 30px;}
+  }
+
+  /* ---------- Login gate ---------- */
+  #loginGate{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);padding:20px;}
+  .login-box{background:var(--ink-2);border:1px solid #2A2E3A;border-radius:14px;padding:34px 30px;width:100%;max-width:380px;color:var(--white);}
+  .login-box h2{color:var(--white);font-size:22px;margin-bottom:6px;}
+  .login-box p.sub{color:#9AA3B0;font-size:13.5px;margin-bottom:20px;}
+  .login-box .field{margin-bottom:13px;}
+  .login-box label{display:block;font-size:12.5px;color:#9AA3B0;margin-bottom:5px;}
+  .login-box input{width:100%;padding:10px 12px;border-radius:6px;border:1px solid #3A3F4C;background:#20242E;color:var(--white);font-size:14px;}
+  .login-box .lbtn{width:100%;padding:11px;border-radius:7px;border:none;background:var(--up-green);color:#08210F;font-weight:700;font-size:14.5px;cursor:pointer;margin-top:6px;}
+  .login-box .lbtn:hover{background:var(--up-green-deep);color:#fff;}
+  .login-box .ltoggle{background:none;border:none;color:#9AA3B0;font-size:12.5px;text-decoration:underline;cursor:pointer;margin-top:14px;display:block;text-align:center;width:100%;}
+  .login-msg{font-size:12.5px;padding:8px 10px;border-radius:6px;margin:10px 0;}
+  .login-msg.err{background:rgba(224,87,74,0.15);color:#F29188;}
+  .login-msg.ok{background:rgba(47,174,102,0.15);color:#6FDB9C;}
+
+  /* ---------- Top account bar (shown once logged in) ---------- */
+  #accountBar{display:flex;justify-content:space-between;align-items:center;padding:8px 22px;background:#0C0E12;color:#9AA3B0;font-size:12.5px;}
+  #accountBar button{background:none;border:1px solid #3A3F4C;color:#B7BCC9;padding:5px 11px;border-radius:6px;font-size:12px;cursor:pointer;}
+  #accountBar button:hover{border-color:var(--up-green);color:var(--up-green);}
+  #syncStatus{display:flex;align-items:center;gap:6px;}
+  #syncStatus .dot{width:7px;height:7px;border-radius:50%;background:var(--up-green);}
+  #syncStatus .dot.syncing{background:var(--gold);}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     LOGIN GATE — shown until authenticated. Same Firebase project
+     as HB AutoTrail, so an existing AutoTrail login works here too.
+     ============================================================ -->
+<div id="loginGate">
+  <div class="login-box">
+    <h2>Household Business Plan</h2>
+    <p class="sub" id="loginSub">Sign in to see and update the shared plan. Both of you use the same login.</p>
+    <div id="loginMsgBox"></div>
+    <div class="field"><label>Email</label><input type="email" id="authEmail" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="authPassword" placeholder="••••••••"></div>
+    <button class="lbtn" id="authSubmitBtn" onclick="doAuthSubmit()">Sign in</button>
+    <button class="ltoggle" onclick="toggleAuthMode()" id="authToggleBtn">Need an account? Create one</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     APP — hidden until authenticated
+     ============================================================ -->
+<div id="planApp" style="display:none;">
+
+<div id="accountBar">
+  <span id="syncStatus"><span class="dot" id="syncDot"></span><span id="syncLabel">Synced</span></span>
+  <span><span id="whoAmI"></span> · <button onclick="doSignOut()">Sign out</button></span>
+</div>
+
+<header class="top">
+  <div class="wrap">
+    <div class="kicker">Household Business Plan</div>
+    <h1>Upspringer &amp; Taken</h1>
+    <p>One shared target, two real businesses. Every number below is editable — adjust it to what you actually expect to close, and the totals update live.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="target-wrap">
+    <div class="target-top">
+      <h2>Household target: ₦60,000/month <span style="color:#9AA3B0;font-weight:400;">(₦2,000/day)</span></h2>
+      <div class="target-input-row">
+        Earned so far this month: ₦<input type="number" id="earnedSoFar" value="0" oninput="updateTarget()">
+      </div>
+    </div>
+    <div class="target-bar-track"><div class="target-bar-fill" id="targetBarFill" style="width:0%;"></div></div>
+    <div class="target-stats">
+      <span><b id="targetPct">0%</b> of monthly target</span>
+      <span id="targetGap">₦60,000 remaining</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     UPSPRINGER
+     ============================================================ -->
+<section class="biz">
+  <div class="wrap">
+    <div class="biz-head"><span class="dot" style="background:var(--up-green);"></span><h2>Upspringer Ltd</h2></div>
+    <p class="biz-sub">Software products, AI training, and consulting — sold mainly through your existing AI Masterclass network.</p>
+
+    <div class="stream-card">
+      <div class="stream-top">
+        <span class="stream-name">WhatsApp Business Setup (Level 1)</span>
+        <span class="stream-status status-ready">Ready now</span>
+      </div>
+      <p class="stream-desc">Flat-rate, 48-hour delivery. Your fastest path to first revenue — start with warm contacts from the masterclass.</p>
+      <div class="stream-calc">
+        <input type="number" id="up1_qty" value="2" oninput="calcUpspringer()"> clients/month ×
+        ₦<input type="number" id="up1_price" value="25000" oninput="calcUpspringer()">
+        <span class="eq">=</span>
+        <span class="subtotal" id="up1_sub">₦50,000</span>
+      </div>
+    </div>
+
+    <div class="stream-card">
+      <div class="stream-top">
+        <span class="stream-name">AI Training Cohort</span>
+        <span class="stream-status status-ready">Ready now</span>
+      </div>
+      <p class="stream-desc">Small paid WhatsApp cohort, separate from the free church masterclass. Quarterly or rolling.</p>
+      <div class="stream-calc">
+        <input type="number" id="up2_qty" value="1" oninput="calcUpspringer()"> seats/month ×
+        ₦<input type="number" id="up2_price" value="75000" oninput="calcUpspringer()">
+        <span class="eq">=</span>
+        <span class="subtotal" id="up2_sub">₦75,000</span>
+      </div>
+    </div>
+
+    <div class="stream-card">
+      <div class="stream-top">
+        <span class="stream-name">Corporate AI Workshop</span>
+        <span class="stream-status status-needs">Needs first pitch</span>
+      </div>
+      <p class="stream-desc">Half/full-day team training. Pitch this to a bank-owner contact first — highest value per engagement.</p>
+      <div class="stream-calc">
+        <input type="number" id="up3_qty" value="0" oninput="calcUpspringer()"> workshops/month ×
+        ₦<input type="number" id="up3_price" value="400000" oninput="calcUpspringer()">
+        <span class="eq">=</span>
+        <span class="subtotal" id="up3_sub">₦0</span>
+      </div>
+    </div>
+
+    <div class="stream-card">
+      <div class="stream-top">
+        <span class="stream-name">HB AutoTrail</span>
+        <span class="stream-status status-needs">Pre-revenue</span>
+      </div>
+      <p class="stream-desc">Live product, real users still needed. Portfolio and lead-gen asset for now — monetize once usage proves out.</p>
+      <div class="stream-calc" style="color:var(--muted);">Not yet a revenue line — tracked separately below.</div>
+    </div>
+
+    <div class="stream-card">
+      <div class="stream-top">
+        <span class="stream-name">HB Fabric Studio</span>
+        <span class="stream-status status-needs">Needs de-branding first</span>
+      </div>
+      <p class="stream-desc">Currently lives on the free Salvation Chapel hub with church credits and gift-workshop messaging. That version stays as-is. A separate, de-churched version — no "gift from" footer, no ministry branding — becomes the real Upspringer product for stylists, designers, tailors, fabric sellers, and aso-ebi coordinators.</p>
+      <div class="stream-calc">
+        <input type="number" id="up4_qty" value="0" oninput="calcUpspringer()"> users or sales/month ×
+        ₦<input type="number" id="up4_price" value="0" oninput="calcUpspringer()">
+        <span class="eq">=</span>
+        <span class="subtotal" id="up4_sub">₦0</span>
+      </div>
+    </div>
+
+    <div class="biz-total" style="background:var(--up-green);">
+      <span class="tlabel">Upspringer monthly projection</span>
+      <span class="tval" id="upTotal">₦125,000</span>
+    </div>
+
+    <div class="roadmap">
+      <div class="rm-phase">
+        <h4>Next 30 days</h4>
+        <div class="rm-item"><input type="checkbox" id="up_r1"><label for="up_r1">Set WhatsApp Setup as a fixed ₦25,000 flat-rate offer</label></div>
+        <div class="rm-item"><input type="checkbox" id="up_r2"><label for="up_r2">Message 5 warm contacts from the AI Masterclass about Setup or training</label></div>
+        <div class="rm-item"><input type="checkbox" id="up_r3"><label for="up_r3">Get HB AutoTrail in front of 10 real car owners outside your own testing</label></div>
+        <div class="rm-item"><input type="checkbox" id="up_r4"><label for="up_r4">Confirm Upspringer landing page fully live with real contact details</label></div>
+        <div class="rm-item"><input type="checkbox" id="up_r11"><label for="up_r11">Copy HB Fabric Studio, strip the "gift from" footer and Salvation Chapel credits, ship the Upspringer version separately from the church one</label></div>
+      </div>
+      <div class="rm-phase">
+        <h4>Next 60 days</h4>
+        <div class="rm-item"><input type="checkbox" id="up_r5"><label for="up_r5">Close first 2–3 WhatsApp Setup clients</label></div>
+        <div class="rm-item"><input type="checkbox" id="up_r6"><label for="up_r6">Pitch the first corporate AI workshop to a bank-owner contact</label></div>
+        <div class="rm-item"><input type="checkbox" id="up_r7"><label for="up_r7">Launch the first paid AI training cohort</label></div>
+        <div class="rm-item"><input type="checkbox" id="up_r8"><label for="up_r8">Get AutoTrail to 20+ real users and collect feedback</label></div>
+      </div>
+      <div class="rm-phase">
+        <h4>Next 90 days</h4>
+        <div class="rm-item"><input type="checkbox" id="up_r9"><label for="up_r9">Get one revenue stream running on a recurring monthly rhythm</label></div>
+        <div class="rm-item"><input type="checkbox" id="up_r10"><label for="up_r10">Decide if AutoTrail is ready for its first paid feature</label></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TAKEN
+     ============================================================ -->
+<section class="biz" style="background:var(--paper-2);">
+  <div class="wrap">
+    <div class="biz-head"><span class="dot" style="background:var(--tk-brass);"></span><h2>Taken</h2></div>
+    <p class="biz-sub">HR consulting on one side, natural food on the other — one brand, two categories. Pricing below is a starting guess: replace it with your real numbers.</p>
+
+    <div class="stream-card">
+      <div class="stream-top">
+        <span class="stream-name">HR Consulting &amp; Recruitment</span>
+        <span class="stream-status status-needs">Pricing not yet set</span>
+      </div>
+      <p class="stream-desc">Recruitment, hiring support, training, advisory. Set your real project or retainer rate before relying on this number.</p>
+      <div class="stream-calc">
+        <input type="number" id="tk1_qty" value="1" oninput="calcTaken()"> engagements/month ×
+        ₦<input type="number" id="tk1_price" value="50000" oninput="calcTaken()">
+        <span class="eq">=</span>
+        <span class="subtotal" id="tk1_sub">₦50,000</span>
+      </div>
+    </div>
+
+    <div class="stream-card">
+      <div class="stream-top">
+        <span class="stream-name">Nourish (Salads, Chips, Juice)</span>
+        <span class="stream-status status-needs">Pricing not yet set</span>
+      </div>
+      <p class="stream-desc">Lower ticket, higher frequency. Good for steady daily income once WhatsApp ordering is flowing.</p>
+      <div class="stream-calc">
+        <input type="number" id="tk2_qty" value="20" oninput="calcTaken()"> orders/month ×
+        ₦<input type="number" id="tk2_price" value="1500" oninput="calcTaken()">
+        <span class="eq">=</span>
+        <span class="subtotal" id="tk2_sub">₦30,000</span>
+      </div>
+    </div>
+
+    <div class="biz-total" style="background:var(--tk-brass);">
+      <span class="tlabel">Taken monthly projection</span>
+      <span class="tval" id="tkTotal">₦80,000</span>
+    </div>
+
+    <div class="roadmap">
+      <div class="rm-phase">
+        <h4>Next 30 days</h4>
+        <div class="rm-item"><input type="checkbox" id="tk_r1"><label for="tk_r1">Finish WhatsApp Business Level 1 setup (profile, catalogue, greeting, hours)</label></div>
+        <div class="rm-item"><input type="checkbox" id="tk_r2"><label for="tk_r2">Get the Taken website live on its own GitHub Pages link</label></div>
+        <div class="rm-item"><input type="checkbox" id="tk_r3"><label for="tk_r3">Start CAC registration as "Taken Enterprises"</label></div>
+        <div class="rm-item"><input type="checkbox" id="tk_r4"><label for="tk_r4">Tell 10 people in your personal network about both sides of Taken</label></div>
+      </div>
+      <div class="rm-phase">
+        <h4>Next 60 days</h4>
+        <div class="rm-item"><input type="checkbox" id="tk_r5"><label for="tk_r5">Land the first paid HR consulting or recruitment engagement</label></div>
+        <div class="rm-item"><input type="checkbox" id="tk_r6"><label for="tk_r6">Get the first 10 Nourish orders through WhatsApp</label></div>
+        <div class="rm-item"><input type="checkbox" id="tk_r7"><label for="tk_r7">Set real, final pricing for both HR services and food items</label></div>
+      </div>
+      <div class="rm-phase">
+        <h4>Next 90 days</h4>
+        <div class="rm-item"><input type="checkbox" id="tk_r8"><label for="tk_r8">See which side (HR or Nourish) is pulling more real demand, double down there</label></div>
+        <div class="rm-item"><input type="checkbox" id="tk_r9"><label for="tk_r9">Explore HR consulting for companies in Upspringer's own corporate network</label></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Upspringer &amp; Taken — household business plan · syncs live between your devices, visible only to accounts signed into this plan</div>
+</footer>
+
+</div><!-- /#planApp -->
+
+<script>
+/* ============================================================
+   FIREBASE — same project as HB AutoTrail, reused on purpose so
+   an existing AutoTrail login works here too, and so we're not
+   asking for a second Firebase project to be set up from scratch.
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDosSiADx-mANhI7GDabc9qhWv-hYFOYtw",
+  authDomain: "hb-autotrail.firebaseapp.com",
+  projectId: "hb-autotrail",
+  storageBucket: "hb-autotrail.firebasestorage.app",
+  messagingSenderId: "61047108571",
+  appId: "1:61047108571:web:7d1f8129649f2ba794edfe"
+};
+let auth, db, firebaseReady = false;
+try{
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  firebaseReady = true;
+}catch(e){ console.warn('Firebase not ready:', e.message); }
+
+const PLAN_DOC = () => db.collection('household-plan').doc('shared');
+const FIELD_IDS = ['earnedSoFar','up1_qty','up1_price','up2_qty','up2_price','up3_qty','up3_price',
+  'up4_qty','up4_price','tk1_qty','tk1_price','tk2_qty','tk2_price'];
+
+/* ---- Auth UI ---- */
+let authMode = 'login';
+function toggleAuthMode(){
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  document.getElementById('authSubmitBtn').textContent = authMode === 'login' ? 'Sign in' : 'Create account';
+  document.getElementById('authToggleBtn').textContent = authMode === 'login' ? 'Need an account? Create one' : 'Already have an account? Sign in';
+  document.getElementById('loginSub').textContent = authMode === 'login'
+    ? 'Sign in to see and update the shared plan. Both of you use the same login.'
+    : 'Create the one shared login you\'ll both use — or ask your wife to sign in with these same details on her device.';
+  setAuthMsg('');
+}
+function setAuthMsg(text, ok){
+  const box = document.getElementById('loginMsgBox');
+  box.innerHTML = text ? `<div class="login-msg ${ok?'ok':'err'}">${text}</div>` : '';
+}
+function doAuthSubmit(){
+  if(!firebaseReady){ setAuthMsg('Firebase did not load — check your connection and try again.', false); return; }
+  const email = document.getElementById('authEmail').value.trim();
+  const pw = document.getElementById('authPassword').value;
+  if(!email || pw.length < 6){ setAuthMsg('Enter an email and a password of at least 6 characters.', false); return; }
+  const action = authMode === 'login'
+    ? auth.signInWithEmailAndPassword(email, pw)
+    : auth.createUserWithEmailAndPassword(email, pw);
+  action.catch(err => setAuthMsg(err.message, false));
+}
+function doSignOut(){ auth.signOut(); }
+
+if(firebaseReady){
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      document.getElementById('loginGate').style.display = 'none';
+      document.getElementById('planApp').style.display = 'block';
+      document.getElementById('whoAmI').textContent = user.email;
+      startPlanSync();
+    } else {
+      document.getElementById('loginGate').style.display = 'flex';
+      document.getElementById('planApp').style.display = 'none';
+      if(planUnsub){ planUnsub(); planUnsub = null; }
+    }
+  });
+}
+
+/* ============================================================
+   REAL-TIME SYNC — one shared document, live between devices.
+   ============================================================ */
+let planUnsub = null;
+let writeTimer = null;
+let applyingRemote = false;
+
+function startPlanSync(){
+  setSyncStatus('syncing');
+  planUnsub = PLAN_DOC().onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites) return;
+    const data = snap.data();
+    if(data){
+      applyingRemote = true;
+      FIELD_IDS.forEach(id=>{
+        const el = document.getElementById(id);
+        if(el && data[id] !== undefined && document.activeElement !== el){ el.value = data[id]; }
+      });
+      if(data.checklist){
+        Object.keys(data.checklist).forEach(cbId=>{
+          const cb = document.getElementById(cbId);
+          if(cb){ cb.checked = data.checklist[cbId]; cb.closest('.rm-item').classList.toggle('done', cb.checked); }
+        });
+      }
+      applyingRemote = false;
+      calcUpspringer(true);
+      calcTaken(true);
+      updateTarget(true);
+    }
+    setSyncStatus('synced');
+  }, err=>{
+    console.warn('Sync error:', err.message);
+    setSyncStatus('error');
+  });
+}
+
+function setSyncStatus(state){
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  if(!dot) return;
+  if(state === 'syncing'){ dot.className = 'dot syncing'; label.textContent = 'Syncing…'; }
+  else if(state === 'error'){ dot.style.background = 'var(--rust)'; label.textContent = 'Offline — changes saved on this device only'; }
+  else{ dot.className = 'dot'; label.textContent = 'Synced'; }
+}
+
+function pushToCloud(){
+  if(applyingRemote || !firebaseReady || !auth.currentUser) return;
+  clearTimeout(writeTimer);
+  setSyncStatus('syncing');
+  writeTimer = setTimeout(()=>{
+    const state = {};
+    FIELD_IDS.forEach(id=>{ const el = document.getElementById(id); if(el) state[id] = el.value; });
+    const checklist = {};
+    document.querySelectorAll('.rm-item input[type=checkbox]').forEach(cb=>{ checklist[cb.id] = cb.checked; });
+    state.checklist = checklist;
+    state.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+    state.updatedBy = auth.currentUser.email;
+    PLAN_DOC().set(state, {merge:true}).then(()=> setSyncStatus('synced')).catch(()=> setSyncStatus('error'));
+  }, 600);
+}
+
+/* ============================================================
+   CALCULATORS
+   ============================================================ */
+function fmt(n){ return '₦' + Math.round(n).toLocaleString(); }
+
+function calcUpspringer(skipPush){
+  const s1 = (+document.getElementById('up1_qty').value||0) * (+document.getElementById('up1_price').value||0);
+  const s2 = (+document.getElementById('up2_qty').value||0) * (+document.getElementById('up2_price').value||0);
+  const s3 = (+document.getElementById('up3_qty').value||0) * (+document.getElementById('up3_price').value||0);
+  const s4 = (+document.getElementById('up4_qty').value||0) * (+document.getElementById('up4_price').value||0);
+  document.getElementById('up1_sub').textContent = fmt(s1);
+  document.getElementById('up2_sub').textContent = fmt(s2);
+  document.getElementById('up3_sub').textContent = fmt(s3);
+  document.getElementById('up4_sub').textContent = fmt(s4);
+  const total = s1+s2+s3+s4;
+  document.getElementById('upTotal').textContent = fmt(total);
+  if(!skipPush) pushToCloud();
+  updateTarget(skipPush);
+  return total;
+}
+
+function calcTaken(skipPush){
+  const s1 = (+document.getElementById('tk1_qty').value||0) * (+document.getElementById('tk1_price').value||0);
+  const s2 = (+document.getElementById('tk2_qty').value||0) * (+document.getElementById('tk2_price').value||0);
+  document.getElementById('tk1_sub').textContent = fmt(s1);
+  document.getElementById('tk2_sub').textContent = fmt(s2);
+  const total = s1+s2;
+  document.getElementById('tkTotal').textContent = fmt(total);
+  if(!skipPush) pushToCloud();
+  updateTarget(skipPush);
+  return total;
+}
+
+function updateTarget(skipPush){
+  const TARGET = 60000;
+  const earned = +document.getElementById('earnedSoFar').value || 0;
+  const pct = Math.min(100, Math.round((earned/TARGET)*100));
+  document.getElementById('targetBarFill').style.width = pct+'%';
+  document.getElementById('targetPct').textContent = pct+'%';
+  const gap = Math.max(0, TARGET-earned);
+  document.getElementById('targetGap').textContent = gap>0 ? fmt(gap)+' remaining' : 'Target reached this month 🎉';
+  if(!skipPush) pushToCloud();
+}
+
+/* ---- Checklist: toggling pushes to cloud ---- */
+function initChecklist(){
+  document.querySelectorAll('.rm-item input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      cb.closest('.rm-item').classList.toggle('done', cb.checked);
+      pushToCloud();
+    });
+  });
+}
+
+calcUpspringer(true);
+calcTaken(true);
+updateTarget(true);
+initChecklist();
+</script>
+</body>
+</html>
+
